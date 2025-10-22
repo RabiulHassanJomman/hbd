@@ -589,14 +589,78 @@
       // Play music
       function playMusic() {
         // Play the local Happy Birthday MP3 file
-        const audio = new Audio("./happy-birthday-334876.mp3");
+        const audio = new Audio("happy-birthday-334876.mp3");
 
         audio.loop = true; // Loop the music
-        audio.volume = 1; // Set volume to 60% for background ambiance
+        audio.volume = 0.6; // Set volume to 60% for background ambiance
 
-        audio.play().catch((error) => {
-          console.log("Audio play failed:", error);
+        // Add event listeners for debugging
+        audio.addEventListener('loadstart', () => {
+          console.log('Audio loading started');
         });
+        
+        audio.addEventListener('canplay', () => {
+          console.log('Audio can start playing');
+        });
+        
+        audio.addEventListener('error', (e) => {
+          console.log('Audio error:', e);
+          console.log('Audio src:', audio.src);
+          console.log('Audio networkState:', audio.networkState);
+          console.log('Audio readyState:', audio.readyState);
+        });
+
+        audio.play().then(() => {
+          console.log('Audio started playing successfully');
+        }).catch((error) => {
+          console.log("Audio play failed:", error);
+          console.log("Error details:", error.message);
+          
+          // Try alternative paths
+          console.log("Trying alternative file paths...");
+          tryAlternativePaths();
+        });
+      }
+
+      // Try alternative file paths for Netlify
+      function tryAlternativePaths() {
+        const alternativePaths = [
+          "./happy-birthday-334876.mp3",
+          "/happy-birthday-334876.mp3",
+          "happy-birthday-334876.mp3"
+        ];
+
+        let currentIndex = 0;
+
+        function tryNextPath() {
+          if (currentIndex >= alternativePaths.length) {
+            console.log("All file paths failed. MP3 file may not be accessible on Netlify.");
+            return;
+          }
+
+          const path = alternativePaths[currentIndex];
+          console.log(`Trying path: ${path}`);
+          
+          const audio = new Audio(path);
+          audio.loop = true;
+          audio.volume = 0.6;
+
+          audio.addEventListener('canplay', () => {
+            console.log(`Success with path: ${path}`);
+            audio.play().catch(e => console.log("Play failed even though canplay fired:", e));
+          });
+
+          audio.addEventListener('error', () => {
+            console.log(`Failed with path: ${path}`);
+            currentIndex++;
+            tryNextPath();
+          });
+
+          // Trigger loading
+          audio.load();
+        }
+
+        tryNextPath();
       }
       
       // Setup event listeners
