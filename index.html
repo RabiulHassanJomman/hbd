@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday Surprise</title>
+    <style>
+      /* CSS Variables for easy customization */
+      :root {
+        --primary-pink: #ff9ec7;
+        --secondary-pink: #ffb3d1;
+        --accent-peach: #ffb3a7;
+        --cream: #fff8f0;
+        --soft-white: #fefefe;
+        --text-dark: #4a4a4a;
+        --text-light: #666;
+        --glass-bg: rgba(255, 255, 255, 0.25);
+        --glass-border: rgba(255, 255, 255, 0.18);
+        --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(
+          135deg,
+          var(--primary-pink) 0%,
+          var(--secondary-pink) 50%,
+          var(--accent-peach) 100%
+        );
+        background-attachment: fixed;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        color: var(--text-dark);
+      }
+
+      /* Fallback for reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* Animated background hearts */
+      .background-hearts {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .heart {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .heart:nth-child(odd) {
+        animation-delay: -2s;
+        animation-duration: 8s;
+      }
+
+      .heart:nth-child(3n) {
+        animation-delay: -4s;
+        animation-duration: 10s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(180deg);
+        }
+      }
+
+      /* Confetti animation */
+      .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: var(--primary-pink);
+        animation: confetti-fall 3s linear forwards;
+        z-index: 1000;
+      }
+
+      @keyframes confetti-fall {
+        0% {
+          transform: translateY(-100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+
+      /* Main container */
+      .container {
+        position: relative;
+        z-index: 10;
+        width: 90%;
+        max-width: 600px;
+        text-align: center;
+        padding: 20px;
+      }
+
+      /* Header */
+      .header {
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-family: "Brush Script MT", cursive, serif;
+        font-size: 2.5rem;
+        color: var(--soft-white);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 10px;
+      }
+
+      /* Message card */
+      .message-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow);
+        padding: 40px 30px;
+        margin-bottom: 30px;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .message-text {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: var(--text-dark);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        max-width: 100%;
+      }
+
+      .message-text.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Progress indicator */
+      .progress-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .progress-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .progress-dot.active {
+        background: var(--soft-white);
+        transform: scale(1.2);
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 25px;
+        padding: 12px 20px;
+        color: var(--text-dark);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
+        min-width: 100px;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn:focus {
+        outline: 2px solid var(--primary-pink);
+        outline-offset: 2px;
+      }
+
+      .btn.primary {
+        background: var(--primary-pink);
+        color: white;
+        border-color: var(--primary-pink);
+      }
+
+      .btn.primary:hover {
+        background: var(--secondary-pink);
+      }
+
+      /* Special features */
+      .special-features {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .message-card {
+          padding: 30px 20px;
+          min-height: 150px;
+        }
+
+        .message-text {
+          font-size: 1.1rem;
+        }
+
+        .controls {
+          gap: 10px;
+        }
+
+        .btn {
+          padding: 10px 15px;
+          font-size: 0.8rem;
+          min-width: 80px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          width: 95%;
+          padding: 15px;
+        }
+
+        .header h1 {
+          font-size: 1.8rem;
+        }
+
+        .message-card {
+          padding: 25px 15px;
+        }
+
+        .message-text {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated background hearts -->
+    <div class="background-hearts" id="backgroundHearts"></div>
+
+    <!-- Main container -->
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Happy Birthday, Saima!</h1>
+      </div>
+
+      <!-- Message card -->
+      <div class="message-card">
+        <div class="message-text" id="messageText">
+          Loading your surprise...
+        </div>
+      </div>
+
+      <!-- Progress indicator -->
+      <div class="progress-container" id="progressContainer">
+        <!-- Progress dots will be generated by JavaScript -->
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn" id="prevBtn" aria-label="Previous message">
+          ← Previous
+        </button>
+        <button
+          class="btn primary"
+          id="playPauseBtn"
+          aria-label="Play or pause messages"
+        >
+          Play
+        </button>
+        <button class="btn" id="nextBtn" aria-label="Next message">
+          Next →
+        </button>
+      </div>
+
+      </div>
+    </div>
+
+    <script>
+      /*
+       * BIRTHDAY SURPRISE WEBPAGE
+       *
+       * CUSTOMIZATION INSTRUCTIONS:
+       *
+       * 1. TO CHANGE THE NAME:
+       *    - Replace "[Her Name]" in the header h1 element
+       *
+       * 2. TO MODIFY MESSAGES:
+       *    - Edit the 'messages' array below
+       *    - Add, remove, or change any messages
+       *    - To shuffle messages, uncomment the shuffleMessages() call in init()
+       *
+       * 3. TO CHANGE TIMING:
+       *    - Modify the timing variables below:
+       *      - fadeInDuration: time for message to fade in (ms)
+       *      - displayDuration: time message stays visible (ms)
+       *      - fadeOutDuration: time for message to fade out (ms)
+       *
+       * 4. TO ADD CUSTOM BACKGROUND:
+       *    - Replace the CSS gradient in body background with:
+       *      background: url('your-image.jpg') center/cover, linear-gradient(...);
+       *
+       * 5. TO ADD CUSTOM MUSIC:
+       *    - Replace "happy-birthday-334876.mp3" with your audio file name
+       *    - Current source: Local MP3 file (happy-birthday-334876.mp3)
+       *    - Music will auto-play when page loads (after 1 second)
+       *    - If MP3 fails, Happy Birthday melody will be generated as fallback
+       *
+       * 6. TO TURN OFF CONFETTI:
+       *    - Comment out the createConfetti() call in init()
+       *
+       * 7. TO DISABLE AUTO-START:
+       *    - Comment out the setTimeout calls in init() function
+       *    - Messages will auto-cycle after 2 seconds
+       *    - Music will auto-play after 1 second
+       */
+
+      // Configuration variables
+      const fadeInDuration = 800; // milliseconds
+      const displayDuration = 4000; // milliseconds
+      const fadeOutDuration = 800; // milliseconds
+      const loop = true; // true to loop messages, false to stop at end
+
+      // Sample messages - customize these!
+      const messages = [
+        "Happy Birthday, my love — I wish I could hold you today.",
+        "Distance means so little when someone means so much.",
+        "Every sunrise reminds me of your smile; every night, I miss you more.",
+        "Today I celebrate you and every tiny thing that makes you you.",
+        "Can't wait until we're together again — this is just a pause, not the end.",
+        "Sending you a thousand hugs across the miles. Make a wish!",
+        "You are my favorite memory and my best tomorrow.",
+        "Forever yours — one heartbeat at a time. Happy Birthday ❤️",
+      ];
+
+      // Global variables
+      let currentMessageIndex = 0;
+      let isPlaying = false;
+      let messageInterval;
+      let speechSynthesis = window.speechSynthesis;
+      let currentUtterance = null;
+
+      // DOM elements
+      const messageText = document.getElementById("messageText");
+      const playPauseBtn = document.getElementById("playPauseBtn");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const progressContainer = document.getElementById("progressContainer");
+      const backgroundHearts = document.getElementById("backgroundHearts");
+
+      // Initialize the page
+      function init() {
+        createBackgroundHearts();
+        createProgressDots();
+        createConfetti();
+        setupEventListeners();
+
+        // Uncomment the line below to shuffle messages
+        // shuffleMessages();
+
+        // Display first message with special animation
+        setTimeout(() => {
+          displayMessage(0, true);
+        }, 500); // Show first message after 0.5 seconds
+
+        // Auto-start message cycling after a short delay
+        setTimeout(() => {
+          startMessageCycle();
+        }, 3000); // Start after 3 seconds to let confetti and first message finish
+
+        // Auto-play music after a short delay
+        // Note: Modern browsers require user interaction for audio
+        setTimeout(() => {
+          playMusic();
+        }, 1000); // Start music after 1 second
+      }
+
+      // Create floating background hearts
+      function createBackgroundHearts() {
+        const heartSymbols = ["♥", "💕", "💖", "💗"];
+        for (let i = 0; i < 15; i++) {
+          const heart = document.createElement("div");
+          heart.className = "heart";
+          heart.textContent =
+            heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+          heart.style.left = Math.random() * 100 + "%";
+          heart.style.top = Math.random() * 100 + "%";
+          heart.style.fontSize = Math.random() * 10 + 15 + "px";
+          heart.style.animationDelay = Math.random() * 6 + "s";
+          backgroundHearts.appendChild(heart);
+        }
+      }
+
+      // Create confetti effect
+      function createConfetti() {
+        const colors = ["#ff9ec7", "#ffb3d1", "#ffb3a7", "#fff8f0"];
+        for (let i = 0; i < 50; i++) {
+          setTimeout(() => {
+            const confetti = document.createElement("div");
+            confetti.className = "confetti";
+            confetti.style.left = Math.random() * 100 + "%";
+            confetti.style.backgroundColor =
+              colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 2 + "s";
+            document.body.appendChild(confetti);
+
+            setTimeout(() => {
+              confetti.remove();
+            }, 3000);
+          }, i * 50);
+        }
+      }
+
+      // Create progress dots
+      function createProgressDots() {
+        progressContainer.innerHTML = "";
+        for (let i = 0; i < messages.length; i++) {
+          const dot = document.createElement("div");
+          dot.className = "progress-dot";
+          if (i === 0) dot.classList.add("active");
+          dot.addEventListener("click", () => goToMessage(i));
+          progressContainer.appendChild(dot);
+        }
+      }
+
+      // Shuffle messages (optional)
+      function shuffleMessages() {
+        for (let i = messages.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [messages[i], messages[j]] = [messages[j], messages[i]];
+        }
+      }
+
+      // Display a specific message with smooth animation
+      function displayMessage(index, isInitial = false) {
+        if (index < 0 || index >= messages.length) return;
+
+        currentMessageIndex = index;
+
+        if (isInitial) {
+          // Special animation for the first message
+          messageText.textContent = messages[index];
+          messageText.classList.add("show");
+        } else {
+          // First fade out current message
+          messageText.classList.remove("show");
+
+          // Wait for fade out to complete, then change text and fade in
+          setTimeout(() => {
+            messageText.textContent = messages[index];
+            messageText.classList.add("show");
+          }, fadeOutDuration);
+        }
+
+        updateProgressDots();
+      }
+
+      // Update progress dots
+      function updateProgressDots() {
+        const dots = progressContainer.querySelectorAll(".progress-dot");
+        dots.forEach((dot, index) => {
+          dot.classList.toggle("active", index === currentMessageIndex);
+        });
+      }
+
+      // Go to specific message
+      function goToMessage(index) {
+        stopMessageCycle();
+        displayMessage(index);
+      }
+
+      // Start message cycling
+      function startMessageCycle() {
+        if (isPlaying) return;
+
+        isPlaying = true;
+        playPauseBtn.textContent = "Pause";
+
+        messageInterval = setInterval(() => {
+          let nextIndex = currentMessageIndex + 1;
+
+          if (nextIndex >= messages.length) {
+            if (loop) {
+              nextIndex = 0;
+            } else {
+              stopMessageCycle();
+              return;
+            }
+          }
+
+          displayMessage(nextIndex);
+        }, fadeInDuration + displayDuration + fadeOutDuration);
+      }
+
+      // Stop message cycling
+      function stopMessageCycle() {
+        isPlaying = false;
+        playPauseBtn.textContent = "Play";
+        if (messageInterval) {
+          clearInterval(messageInterval);
+          messageInterval = null;
+        }
+      }
+
+      // Toggle play/pause
+      function togglePlayPause() {
+        if (isPlaying) {
+          stopMessageCycle();
+        } else {
+          startMessageCycle();
+        }
+      }
+
+      // Go to previous message
+      function goToPrevious() {
+        stopMessageCycle();
+        let prevIndex = currentMessageIndex - 1;
+        if (prevIndex < 0) prevIndex = messages.length - 1;
+        displayMessage(prevIndex);
+      }
+
+      // Go to next message
+      function goToNext() {
+        stopMessageCycle();
+        let nextIndex = currentMessageIndex + 1;
+        if (nextIndex >= messages.length) nextIndex = 0;
+        displayMessage(nextIndex);
+      }
+
+      // Play music
+      function playMusic() {
+        // Play the local Happy Birthday MP3 file
+        const audio = new Audio("./happy-birthday-334876.mp3");
+
+        audio.loop = true; // Loop the music
+        audio.volume = 1; // Set volume to 60% for background ambiance
+
+        audio.play().catch((error) => {
+          console.log("Audio play failed:", error);
+        });
+      }
+      
+      // Setup event listeners
+      function setupEventListeners() {
+        playPauseBtn.addEventListener("click", togglePlayPause);
+        prevBtn.addEventListener("click", goToPrevious);
+        nextBtn.addEventListener("click", goToNext);
+
+        // Enable audio context on first user interaction
+        let audioContextEnabled = false;
+        function enableAudioContext() {
+          if (!audioContextEnabled) {
+            audioContextEnabled = true;
+            // Try to create and resume audio context
+            try {
+              const audioContext = new (window.AudioContext ||
+                window.webkitAudioContext)();
+              if (audioContext.state === "suspended") {
+                audioContext.resume();
+              }
+            } catch (error) {
+              console.log("Could not enable audio context:", error);
+            }
+          }
+        }
+
+        // Enable audio on any user interaction
+        document.addEventListener("click", enableAudioContext, { once: true });
+        document.addEventListener("keydown", enableAudioContext, {
+          once: true,
+        });
+        document.addEventListener("touchstart", enableAudioContext, {
+          once: true,
+        });
+
+        // Keyboard support
+        document.addEventListener("keydown", (e) => {
+          switch (e.code) {
+            case "Space":
+              e.preventDefault();
+              togglePlayPause();
+              break;
+            case "ArrowLeft":
+              e.preventDefault();
+              goToPrevious();
+              break;
+            case "ArrowRight":
+              e.preventDefault();
+              goToNext();
+              break;
+          }
+        });
+
+        // Respect reduced motion preference
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          // Disable animations for users who prefer reduced motion
+          document.documentElement.style.setProperty(
+            "--animation-duration",
+            "0.01ms"
+          );
+        }
+      }
+
+      // Start the application
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
